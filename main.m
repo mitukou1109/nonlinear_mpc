@@ -58,32 +58,32 @@ function main
     tiledlayout(3, 2)
     nexttile
     plot(tData, xData(1, :))
-    % ylim([-1, 2])
+    ylim([-1, 2])
     xlabel("Time")
     ylabel("$x_1$", "Interpreter", "latex")
     nexttile
     plot(tData, xData(2, :))
-    % ylim([-1, 0.5])
+    ylim([-1, 0.5])
     xlabel("Time")
     ylabel("$x_2$", "Interpreter", "latex")
     nexttile
     plot(tData, uData(1, :))
-    % ylim([-0.6, 0.6])
+    ylim([-0.6, 0.6])
     xlabel("Time")
     ylabel("$u$", "Interpreter", "latex")
     nexttile
     plot(tData, uData(2, :))
-    % ylim([0, 0.8])
+    ylim([0, 0.8])
     xlabel("Time")
     ylabel("$v$", "Interpreter", "latex")
     nexttile
     plot(tData, uData(3, :))
-    % ylim([0, 1])
+    ylim([0, 1])
     xlabel("Time")
     ylabel("$\rho$", "Interpreter", "latex")
     nexttile
     plot(tData, FData)
-    % ylim([0, 2e-3])
+    ylim([0, 2e-3])
     xlabel("Time")
     ylabel("$\| F \|$", "Interpreter", "latex")
 
