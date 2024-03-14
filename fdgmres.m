@@ -1,12 +1,12 @@
 function W = fdgmres(DF, g, W0, w, omega, iter)
 
     arguments
-        DF
-        g
-        W0
-        w
-        omega
-        iter
+        DF function_handle
+        g (:, 1) {mustBeNumeric}
+        W0 (:, :) {mustBeNumeric}
+        w (:, 1) {mustBeNumeric}
+        omega (1, 1) {mustBeNumeric}
+        iter (1, 1) {mustBeInteger, mustBePositive}
     end
 
     W = W0;
