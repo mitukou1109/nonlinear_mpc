@@ -14,6 +14,8 @@ function main
     N = 10;
     zeta = 100;
     GMRESIterations = 2;
+
+    Dtau = @(t) T(t) / N;
     TMax = 20;
     h = 1e-6;
 
@@ -27,9 +29,7 @@ function main
     uData = zeros(numel(u), sampleSize);
     FData = zeros(1, sampleSize);
 
-    X = zeros(numel(x), N);
     DUDt = zeros(numel(u), N);
-    LAMBDA = zeros(size(X));
 
     u = fsolve(@(u) DHDu(x, u, DphiDx(x, t).', t), u);
     U = repmat(u, 1, N);
@@ -37,28 +37,16 @@ function main
     for i = 1:sampleSize
         u = U(:, 1);
 
-        X(:, 1) = x;
-
-        Dtau = T(t) / N;
-
-        for j = 1:N - 1
-            X(:, j + 1) = X(:, j) + f(X(:, j), U(:, j), t + (j - 1) * Dtau) * Dtau;
-        end
-
-        LAMBDA(:, N) = DphiDx(X(:, N), t + T(t)).';
-
-        for j = N - 1:-1:1
-            LAMBDA(:, j) = LAMBDA(:, j + 1) + DHDx(X(:, j + 1), U(:, j + 1), LAMBDA(:, j + 1), t + (j - 1) * Dtau).' * Dtau;
-        end
+        Ft = F(U, x, t);
 
         tData(:, i) = t;
         xData(:, i) = x;
         uData(:, i) = u;
-        FData(:, i) = norm(F(U, X, t));
+        FData(:, i) = norm(Ft);
 
-        DF = @(W, w, omega) (F(U + h * W, X + h * w, t + h * omega) - F(U, X, t)) / h;
-        g = -zeta * F(U, X, t);
-        DUDt = fdgmres(DF, g, DUDt, f(X, U, t), 1, GMRESIterations);
+        DF = @(W, w, omega) (F(U + h * W, x + h * w, t + h * omega) - Ft) / h;
+        g = -zeta * Ft;
+        DUDt = fdgmres(DF, g, DUDt, f(x, u, t), 1, GMRESIterations);
 
         U = U + DUDt * Dt;
         x = x + f(x, u, t) * Dt;
@@ -99,11 +87,31 @@ function main
     xlabel("Time")
     ylabel("$\| F \|$", "Interpreter", "latex")
 
-    function F = F(U, X, t)
+    function [X, LAMBDA] = EulerLagrange(U, x, t)
+        X = zeros(numel(x), N);
+        LAMBDA = zeros(size(X));
+
+        X(:, 1) = x;
+
+        for j = 1:N - 1
+            X(:, j + 1) = X(:, j) + f(X(:, j), U(:, j), t + (j - 1) * Dtau(t)) * Dtau(t);
+        end
+
+        LAMBDA(:, N) = DphiDx(X(:, N), t + T(t)).';
+
+        for j = N - 1:-1:1
+            LAMBDA(:, j) = LAMBDA(:, j + 1) + DHDx(X(:, j + 1), U(:, j + 1), LAMBDA(:, j + 1), t + (j - 1) * Dtau(t)).' * Dtau(t);
+        end
+
+    end
+
+    function F = F(U, x, t)
         F = zeros(size(U));
 
+        [X, LAMBDA] = EulerLagrange(U, x, t);
+
         for k = 1:size(U, 2)
-            F(:, k) = DHDu(X(:, k), U(:, k), LAMBDA(:, k), t + (k - 1) * Dtau).';
+            F(:, k) = DHDu(X(:, k), U(:, k), LAMBDA(:, k), t + (k - 1) * Dtau(t)).';
         end
 
         F = reshape(F, [], 1);
