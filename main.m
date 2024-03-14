@@ -1,9 +1,9 @@
 function main
     f = @(x, u, t) [x(2); (1 - x(1) ^ 2 - x(2) ^ 2) * x(2) - x(1) + u(1)];
     C = @(x, u, t) u(1) ^ 2 + u(2) ^ 2 - 0.5 ^ 2;
-    phi = @(x, t) (x(1) ^ 2 * t + x(2) ^ 2 * t) / 2;
-    L = @(x, u, t) (x(1) ^ 2 + x(2) ^ 2 + u(1) ^ 2) / 2 - 0.01 * u(2);
-    H = @(x, u, lambda, t) L(x, u, t) + lambda.' * f(x, u, t) + u(3) * C(x, u, t);
+    % phi = @(x, t) (x(1) ^ 2 * t + x(2) ^ 2 * t) / 2;
+    % L = @(x, u, t) (x(1) ^ 2 + x(2) ^ 2 + u(1) ^ 2) / 2 - 0.01 * u(2);
+    % H = @(x, u, lambda, t) L(x, u, t) + lambda.' * f(x, u, t) + u(3) * C(x, u, t);
 
     DphiDx = @(x, t) [x(1) * t, x(2) * t];
     DHDx = @(x, u, lambda, t) [x(1) + lambda(2) * (-2 * x(1) * x(2) - 1), x(2) + lambda(1) + lambda(2) * (-x(1) ^ 2 - 3 * x(2) ^ 2)];
